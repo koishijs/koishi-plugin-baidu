@@ -1,11 +1,17 @@
 import cheerio from 'cheerio'
-import { Context, isInteger, segment, template, interpolate } from 'koishi'
+import { Context, isInteger, segment, template, interpolate, Schema } from 'koishi'
 
-export interface BaiduOptions {
+export interface Config {
   maxResultCount?: number
   maxSummaryLength?: number
   format?: string
 }
+
+export const Config: Schema<Config> = Schema.object({
+  maxResultCount: Schema.natural().default(3).description('最多返回的结果数量。'),
+  maxSummaryLength: Schema.natural().default(200).description('最长返回的摘要长度。'),
+  format: Schema.string().default('{{ thumbnail }}\n{{ title }}\n{{ tips }}\n{{ summary }}\n来自：{{ link }}').description('要使用的输出模板。'),
+})
 
 export const name = 'baidu'
 
@@ -40,7 +46,7 @@ function getArticleLink($: CheerioRoot, index: number) {
   return url
 }
 
-function formatAnswer($: CheerioRoot, link: string, options: BaiduOptions): string {
+function formatAnswer($: CheerioRoot, link: string, options: Config): string {
   $('.lemma-summary sup').remove() // 删掉 [1] 这种鬼玩意
   let summary = $('.lemma-summary').text().trim() // 获取词条的第一段
   if (summary.length > options.maxSummaryLength) {
@@ -56,14 +62,7 @@ function formatAnswer($: CheerioRoot, link: string, options: BaiduOptions): stri
   }).replace(/\n+/g, '\n')
 }
 
-export function apply(ctx: Context, options: BaiduOptions = {}) {
-  options = {
-    maxResultCount: 3,
-    maxSummaryLength: 200,
-    format: '{{ thumbnail }}\n{{ title }}\n{{ tips }}\n{{ summary }}\n来自：{{ link }}',
-    ...options,
-  }
-
+export function apply(ctx: Context, options: Config) {
   /** 从搜索列表中获取指定顺位结果的词条内容 */
   async function getHtml(url: string) {
     if (!url) return null
