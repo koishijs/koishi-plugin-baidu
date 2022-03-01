@@ -70,7 +70,7 @@ export function apply(ctx: Context, options: Config) {
     return cheerio.load(data)
   }
 
-  ctx.command('tools/baidu <keyword>', '使用百度百科搜索')
+  ctx.command('baidu <keyword>', '使用百度百科搜索')
     .example('百度一下 最终幻想14')
     .shortcut('百度一下', { fuzzy: true })
     .shortcut('百度', { fuzzy: true })
