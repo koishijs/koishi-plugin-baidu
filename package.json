@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-baidu",
   "description": "Search Baidu Baike in Koishi",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -24,15 +24,33 @@
   "scripts": {
     "build": "tsc -b"
   },
+  "koishi": {
+    "description": {
+      "en": "Search Baidu Baike",
+      "zh": "搜索百度百科"
+    },
+    "locales": [
+      "zh"
+    ]
+  },
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "search",
+    "baidu",
+    "baike",
+    "wiki"
   ],
   "peerDependencies": {
-    "koishi": "^4.3.2"
+    "koishi": "^4.8.2"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.10"
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.45",
+    "koishi": "^4.8.2",
+    "typescript": "^4.7.4"
   }
 }
