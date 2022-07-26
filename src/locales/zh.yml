@@ -1,0 +1,6 @@
+baidu:
+  article-not-exist: 百度百科尚未收录词条 “{0}” 。
+  await-choose-result: 请发送您想查看的词条编号。
+  error-with-link: 百度搜索时出现问题。
+  has-multi-result: “{0}”有多个搜索结果 (显示前 {1} 个)：
+  incorrect-index: ''

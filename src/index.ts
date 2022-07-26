@@ -1,5 +1,5 @@
-import cheerio from 'cheerio'
-import { Context, isInteger, segment, template, interpolate, Schema } from 'koishi'
+import { CheerioAPI, load } from 'cheerio'
+import { Context, isInteger, segment, interpolate, Schema } from 'koishi'
 
 export interface Config {
   maxResultCount?: number
@@ -18,18 +18,8 @@ export const name = 'baidu'
 const URL_BASE = 'https://baike.baidu.com'
 const URL_SEARCH = URL_BASE + '/search?word='
 
-template.set('baidu', {
-  'article-not-exist': '百度百科尚未收录词条 “{0}” 。',
-  'await-choose-result': '请发送您想查看的词条编号。',
-  'error-with-link': '百度搜索时出现问题。',
-  'has-multi-result': '“{0}”有多个搜索结果（显示前 {1} 个）：',
-  'incorrect-index': '',
-})
-
-type CheerioRoot = ReturnType<typeof cheerio.load>
-
 /** 从搜索列表中获取指定顺位结果的词条链接 */
-function getArticleLink($: CheerioRoot, index: number) {
+function getArticleLink($: CheerioAPI, index: number) {
   const $list = $('.search-list dd')
 
   // 处理 index
@@ -46,7 +36,7 @@ function getArticleLink($: CheerioRoot, index: number) {
   return url
 }
 
-function formatAnswer($: CheerioRoot, link: string, options: Config): string {
+function formatAnswer($: CheerioAPI, link: string, options: Config): string {
   $('.lemma-summary sup').remove() // 删掉 [1] 这种鬼玩意
   let summary = $('.lemma-summary').text().trim() // 获取词条的第一段
   if (summary.length > options.maxSummaryLength) {
@@ -67,11 +57,13 @@ export function apply(ctx: Context, options: Config) {
   async function getHtml(url: string) {
     if (!url) return null
     const data = await ctx.http.get(url)
-    return cheerio.load(data)
+    return load(data)
   }
 
+  ctx.i18n.define('zh', require('./locales/zh'))
+
   ctx.command('baidu <keyword>', '使用百度百科搜索')
-    .example('百度一下 最终幻想14')
+    .example('百度一下 百度')
     .shortcut('百度一下', { fuzzy: true })
     .shortcut('百度', { fuzzy: true })
     .action(async ({ session }, keyword) => {
@@ -84,7 +76,7 @@ export function apply(ctx: Context, options: Config) {
 
         // 没有相关词条
         if ($('.create-entrance').length || $('.no-result').length) {
-          return template('baidu.article-not-exist', keyword, url)
+          return session.text('baidu.article-not-exist', [keyword])
         }
 
         // 有多个搜索结果
@@ -92,21 +84,21 @@ export function apply(ctx: Context, options: Config) {
         const $results = $('.search-list dd')
         const count = Math.min($results.length, options.maxResultCount)
         if (count > 1) {
-          const output = [template('baidu.has-multi-result', keyword, count)]
+          const output = [session.text('baidu.has-multi-result', [keyword, count])]
           for (let i = 0; i < count; i++) {
             const $item = $results.eq(i)
             const title = $item.find('.result-title').text().replace(/[_\-]\s*百度百科\s*$/, '').trim()
             const desc = $item.find('.result-summary').text().trim()
             output.push(`${i + 1}. ${title}\n  ${desc}`)
           }
-          output.push(template('baidu.await-choose-result', count))
+          output.push(session.text('baidu.await-choose-result', [count]))
           await session.send(output.join('\n'))
           const answer = await session.prompt(30 * 1000)
           if (!answer) return
 
           index = +answer - 1
           if (!isInteger(index) || index < 0 || index >= count) {
-            return template('baidu.incorrect-index')
+            return session.text('baidu.incorrect-index')
           }
         }
 
@@ -115,14 +107,14 @@ export function apply(ctx: Context, options: Config) {
         const $article = await getHtml(articleLink)
 
         if (!$article) {
-          return template('baidu.error-with-link', url)
+          return session.text('baidu.error-with-link', [url])
         }
 
         // 获取格式化文本
         return formatAnswer($article, articleLink, options)
       } catch (err) {
         ctx.logger('baidu').warn(err)
-        return template('baidu.error-with-link', url)
+        return session.text('baidu.error-with-link', [url])
       }
     })
 }
