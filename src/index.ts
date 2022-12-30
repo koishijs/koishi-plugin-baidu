@@ -10,7 +10,7 @@ export interface Config {
 export const Config: Schema<Config> = Schema.object({
   maxResultCount: Schema.natural().default(3).description('最多返回的结果数量。'),
   maxSummaryLength: Schema.natural().default(200).description('最长返回的摘要长度。'),
-  format: Schema.string().default('{{ thumbnail }}\n{{ title }}\n{{ tips }}\n{{ summary }}\n来自：{{ link }}').description('要使用的输出模板。'),
+  format: Schema.string().role('textarea').default('{{ thumbnail }}\n{{ title }}\n{{ tips }}\n{{ summary }}\n来自：{{ link }}').description('要使用的输出模板。'),
 })
 
 export const name = 'baidu'

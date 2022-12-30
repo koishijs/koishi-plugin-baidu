@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-baidu",
   "description": "Search Baidu Baike in Koishi",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -9,7 +9,8 @@
     "dist"
   ],
   "author": "Dragon-Fish <824399619@qq.com>",
-  "maintainers": [
+  "contributors": [
+    "Dragon-Fish <824399619@qq.com>",
     "Shigma <shigma10826@gmail.com>"
   ],
   "license": "MIT",
@@ -22,7 +23,7 @@
   },
   "homepage": "https://github.com/koishijs/koishi-plugin-baidu",
   "scripts": {
-    "build": "tsc -b"
+    "build": "atsc -b"
   },
   "koishi": {
     "description": {
@@ -43,14 +44,15 @@
     "wiki"
   ],
   "peerDependencies": {
-    "koishi": "^4.8.2"
+    "koishi": "^4.8.3"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12"
   },
   "devDependencies": {
     "@types/node": "^17.0.45",
-    "koishi": "^4.8.2",
-    "typescript": "^4.7.4"
+    "atsc": "^1.2.2",
+    "koishi": "^4.10.10",
+    "typescript": "^4.9.4"
   }
 }
